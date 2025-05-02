@@ -1,0 +1,33 @@
+[
+  {
+    "name": "India",
+    "key": "india",
+    "temperatureUnit": "C",
+    "defaultWeather": "clear skies"
+  },
+  {
+    "name": "USA",
+    "key": "usa",
+    "temperatureUnit": "F",
+    "defaultWeather": "partly cloudy"
+  },
+  {
+    "name": "Canada",
+    "key": "canada",
+    "temperatureUnit": "C", 
+    "defaultWeather": "light snow"
+  },
+  {
+    "name": "China",
+    "key": "china",
+    "temperatureUnit": "C",
+    "defaultWeather": "smoggy"
+  },
+  {
+    "name": "Australia",
+    "key": "australia",
+    "temperatureUnit": "C",
+    "defaultWeather": "sunny"
+  }
+  
+]

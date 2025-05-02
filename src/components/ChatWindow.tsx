@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import chatFlow from '../data/chatFlow.json';
 import indiaStates from '../data/indiaStates.json';
+import countries from '../data/countries.json';
 import './ChatWindow.css';
 
 type ChatWindowProps = {
@@ -17,6 +18,13 @@ type Step = {
   nextByOption?: { [key: string]: string };
 };
 
+type Country = {
+  name: string;
+  key: string;
+  temperatureUnit: string;
+  defaultWeather: string;
+};
+
 const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<{ sender: 'bot' | 'user'; text: string }[]>([]);
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -25,6 +33,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
   const [currentOptions, setCurrentOptions] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [currentCountries, setCurrentCountries] = useState<Country[]>([]);
   
   // Reference to messages container for auto-scrolling
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -32,6 +41,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
   const getStep = (id: string): Step | undefined => {
     return chatFlow.find(step => step.id === id) as Step | undefined;
   };
+
+  // Load data from sessionStorage on initial render
+  useEffect(() => {
+    try {
+      const savedData = sessionStorage.getItem('userData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setFormData(parsedData);
+        console.log('Loaded user data from sessionStorage:', parsedData);
+      }
+    } catch (error) {
+      console.error('Error loading from sessionStorage:', error);
+    }
+  }, []);
 
   // Initialize chat on first load only
   useEffect(() => {
@@ -45,6 +68,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Save formData to sessionStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (Object.keys(formData).length > 0) {
+        sessionStorage.setItem('userData', JSON.stringify(formData));
+        console.log('Saved user data to sessionStorage:', formData);
+      }
+    } catch (error) {
+      console.error('Error saving to sessionStorage:', error);
+    }
+  }, [formData]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -61,9 +96,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
     setTimeout(() => {
       setIsTyping(false);
       
+      const getWeatherMessage = (country: Country, city: string, state?: string) => {
+        const temp = country.name === 'USA' ? '75' : country.name === 'Canada' ? '20' : '32';
+        return `Thanks! Fetching weather for ${city}${state ? `, ${state}` : ''}, ${country.name}... Today's weather: ${temp}°${country.temperatureUnit}, ${country.defaultWeather}.`;
+      };
       // Replace placeholders in message
       let message = step.message;
-      if (stepId === '9A') {
+      if (stepId === '6' && typeof step.options === 'string' && step.options === 'countries.json') {
+        setCurrentCountries(countries);
+        setCurrentOptions(countries.map(c => c.name));
+      }
+      else if (stepId === '9A') {
         message = `Thanks, ${formData.name}! Here's your summary:\n` +
           `- Phone: ${formData.phone}\n` +
           `- Email: ${formData.email}\n` +
@@ -72,6 +115,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
           `${formData.country === 'Canada' ? `- Province: ${formData.province}\n` : ''}` +
           `We've saved your preferences. Have a great day!`;
       }
+        
       else if (stepId === '8A') {
         message = message
           .replace('{city}', formData.city || '')
@@ -79,15 +123,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
           .replace('{country}', formData.country || '');
       }
       else if(stepId === '10') {
-        const location = formData.country === 'India' 
-          ? `${formData.city}, ${formData.state}, India`
-          : formData.country === 'Canada'
-          ? `${formData.city}, ${formData.province}, Canada`
-          : formData.country === 'USA'
-          ? `${formData.city}, ${formData.state}, USA`
-          : `${formData.city}, China`;
+        const country = countries.find(c => c.name === formData.country);
+        if (country) {
+          if (formData.country === 'India' || formData.country === 'USA') {
+            message = getWeatherMessage(country, formData.city, formData.state);
+          } else if (formData.country === 'Canada') {
+            message = getWeatherMessage(country, formData.city, formData.province);
+          } else {
+            message = getWeatherMessage(country, formData.city);
+          }
+        }
         
-        message = message.replace('{location}', location);
+        
       }
       
       // Add bot message
@@ -130,7 +177,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
     
     // Store input in formData if step has a key
     if (step.key) {
-      setFormData(prev => ({ ...prev, [step.key!]: input }));
+      // Update formData with the new input
+      setFormData(prev => {
+        const updatedData = { ...prev, [step.key!]: input };
+        return updatedData;
+      });
     }
 
     // Determine next step
@@ -146,6 +197,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
     handleSubmit(option);
   };
 
+  // For debugging - add a button to clear sessionStorage
+  const clearStorage = () => {
+    sessionStorage.removeItem('userData');
+    setFormData({});
+    console.log('Session storage cleared');
+  };
+
   return (
     <div className="chat-window">
       <div className="chat-header">
@@ -155,6 +213,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
             ×
           </button>
         )}
+        {/* Uncomment for debugging
+        <button className="debug-btn" onClick={clearStorage} title="Clear Storage">
+          🗑️
+        </button>
+        */}
       </div>
       
       <div className="messages">

@@ -32,14 +32,19 @@
     "options": ["Yes", "No"],
     "nextByOption": {
       "Yes": "6",
-      "No": "exit"
+      "No": "7"
     }
+  },
+  {
+    "id": "7",
+    "message": "thanks for using this service!",
+    "next": null
   },
   {
     "id": "6",
     "message": "Great! Please select a country:",
     "inputType": "options",
-    "options": ["India", "USA", "Canada", "China"],
+    "options": "countries.json",
     "key": "country",
     "nextByOption": {
       "India": "6A",
