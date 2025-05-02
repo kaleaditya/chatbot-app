@@ -1,0 +1,131 @@
+[
+  {
+    "id": "1",
+    "message": "Hello! I'm here to help you with weather reports.",
+    "next": "2"
+  },
+  {
+    "id": "2",
+    "message": "May I have your name?",
+    "inputType": "text",
+    "key": "name",
+    "next": "3"
+  },
+  {
+    "id": "3",
+    "message": "Your phone number?",
+    "inputType": "text",
+    "key": "phone",
+    "next": "4"
+  },
+  {
+    "id": "4",
+    "message": "And your email?",
+    "inputType": "text",
+    "key": "email",
+    "next": "5"
+  },
+  {
+    "id": "5",
+    "message": "Would you like to check today's weather?",
+    "inputType": "options",
+    "options": ["Yes", "No"],
+    "nextByOption": {
+      "Yes": "6",
+      "No": "exit"
+    }
+  },
+  {
+    "id": "6",
+    "message": "Great! Please select a country:",
+    "inputType": "options",
+    "options": ["India", "USA", "Canada", "China"],
+    "key": "country",
+    "nextByOption": {
+      "India": "6A",
+      "USA": "6B",
+      "Canada": "6C",
+      "China": "6D"
+    }
+  },
+  {
+    "id": "6A",
+    "message": "Great! Which Indian state's weather would you like to check?",
+    "inputType": "options",
+    "options": "indiaStates.json",
+    "key": "state",
+    "next": "7A"
+  },
+  {
+    "id": "7A",
+    "message": "Now enter the city in that state.",
+    "inputType": "text",
+    "key": "city",
+    "next": "8A"
+  },
+  {
+    "id": "8A",
+    "message": "Thanks! Fetching weather for {city}, {state}, India... Today's weather: 32°C, clear skies.",
+    "next": "9A"
+  },
+  {
+    "id": "9A",
+    "message": "summary",
+    "next": null
+  },
+  {
+    "id": "6B",
+    "message": "Please enter the state in the USA.",
+    "inputType": "text",
+    "key": "state",
+    "next": "7B"
+  },
+  {
+    "id": "7B",
+    "message": "Now enter the city in that state.",
+    "inputType": "text",
+    "key": "city",
+    "next": "8B"
+  },
+  {
+    "id": "8B",
+    "message": "Thanks! Fetching weather for {city}, {state}, USA... Today's weather: 75°F, partly cloudy.",
+    "next": "9A"
+  },
+  {
+    "id": "6C",
+    "message": "Please enter the province in Canada.",
+    "inputType": "text",
+    "key": "province",
+    "next": "7C"
+  },
+  {
+    "id": "7C",
+    "message": "Now enter the city in that province.",
+    "inputType": "text",
+    "key": "city",
+    "next": "8C"
+  },
+  {
+    "id": "8C",
+    "message": "Thanks! Fetching weather for {city}, {province}, Canada... Today's weather: 20°C, light snow.",
+    "next": "9A"
+  },
+  {
+    "id": "6D",
+    "message": "Please enter the city in China.",
+    "inputType": "text",
+    "key": "city",
+    "next": "8D"
+  },
+  {
+    "id": "8D",
+    "message": "Thanks! Fetching weather for {city}, China... Today's weather: 28°C, smoggy.",
+    "next": "9A"
+  },
+  {
+    "id": "9A",
+    "message": "summary",
+    "next": null
+  }
+]
